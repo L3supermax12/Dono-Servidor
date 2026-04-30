@@ -1,0 +1,131 @@
+<!DOCTYPE html>
+<html lang="pt-br">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Painel Administrativo - Dr. Smile</title>
+    <style>
+        :root { --bg: #0f172a; --card: #1e293b; --primary: #00e5ff; --text: #f8fafc; }
+        body { background: var(--bg); color: var(--text); font-family: sans-serif; padding: 20px; }
+        .login-overlay { position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: var(--bg); display: flex; justify-content: center; align-items: center; z-index: 1000; }
+        .login-card { background: var(--card); padding: 40px; border-radius: 15px; text-align: center; }
+        .hidden { display: none !important; }
+        table { width: 100%; border-collapse: collapse; background: var(--card); border-radius: 10px; margin-top: 20px; }
+        th, td { padding: 15px; text-align: left; border-bottom: 1px solid #334155; }
+        .btn { padding: 10px; border: none; border-radius: 5px; cursor: pointer; font-weight: bold; }
+        .btn-iniciar { background: #22c55e; color: white; }
+        .btn-finalizar { background: var(--primary); color: #000; }
+        .disabled { background: #475569 !important; cursor: not-allowed; }
+    </style>
+</head>
+<body>
+
+<div id="login" class="login-overlay">
+    <div class="login-card">
+        <h2>Acesso Restrito</h2>
+        <input type="password" id="senha" placeholder="Digite a Senha do Dono" style="padding: 10px; border-radius: 5px; border: none;">
+        <button onclick="autenticar()" class="btn btn-iniciar">ENTRAR</button>
+    </div>
+</div>
+
+<div id="conteudo-painel" class="hidden">
+    <h1>Controle de Atendimento</h1>
+    <div id="aviso-atendimento" style="background: #334155; padding: 10px; border-radius: 8px; color: var(--primary);"></div>
+    
+    <table>
+        <thead>
+            <tr>
+                <th>Paciente</th>
+                <th>Status</th>
+                <th>Ações</th>
+            </tr>
+        </thead>
+        <tbody id="corpo-tabela"></tbody>
+    </table>
+</div>
+
+<script type="module">
+    import { initializeApp } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-app.js";
+    import { getDatabase, ref, onValue, update, remove } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-database.js";
+
+    const firebaseConfig = {
+        apiKey: "AIzaSyDAAl2ziqrALH6R1lzgzTX3kDJ6TdVcVIM",
+        authDomain: "clinica-cliente.firebaseapp.com",
+        projectId: "clinica-cliente",
+        storageBucket: "clinica-cliente.firebasestorage.app",
+        messagingSenderId: "151834590720",
+        appId: "1:151834590720:web:40dc91b2b88dc65d9922e5"
+    };
+
+    const app = initializeApp(firebaseConfig);
+    const db = getDatabase(app);
+
+    // SENHA ÚNICA (Mude aqui para o que quiser)
+    const SENHA_MESTRA = "1704"; 
+
+    window.autenticar = () => {
+        const senhaInput = document.getElementById('senha').value;
+        if(senhaInput === SENHA_MESTRA) {
+            document.getElementById('login').classList.add('hidden');
+            document.getElementById('conteudo-painel').classList.remove('hidden');
+            carregarDados();
+        } else {
+            alert("Senha Incorreta!");
+        }
+    };
+
+    function carregarDados() {
+        onValue(ref(db, 'agendamentos'), (snapshot) => {
+            const data = snapshot.val();
+            const tabela = document.getElementById('corpo-tabela');
+            tabela.innerHTML = "";
+            
+            let alguemSendoAtendido = false;
+            let nomeAtendimento = "";
+
+            if(data) {
+                // Primeiro verifica se tem alguém em atendimento
+                Object.values(data).forEach(p => {
+                    if(p.status === "Em Atendimento") {
+                        alguemSendoAtendido = true;
+                        nomeAtendimento = p.nome;
+                    }
+                });
+
+                document.getElementById('aviso-atendimento').innerText = alguemSendoAtendido ? 
+                    "Atendendo agora: " + nomeAtendimento : "Ninguém sendo atendido no momento.";
+
+                Object.keys(data).forEach(key => {
+                    const p = data[key];
+                    if(p.status === "Concluído") return;
+
+                    const btnIniciar = `<button class="btn btn-iniciar ${alguemSendoAtendido ? 'disabled' : ''}" 
+                        onclick="${alguemSendoAtendido ? '' : `atualizar('${key}', 'Em Atendimento')`}">Iniciar</button>`;
+                    
+                    const btnFinalizar = `<button class="btn btn-finalizar" onclick="atualizar('${key}', 'Concluído')">Finalizar</button>`;
+
+                    tabela.innerHTML += `
+                        <tr>
+                            <td>${p.nome}</td>
+                            <td>${p.status}</td>
+                            <td>
+                                ${p.status === 'Pendente' ? btnIniciar : btnFinalizar}
+                                <button onclick="deletar('${key}')" style="background:none; border:none; color:red; cursor:pointer;">Remover</button>
+                            </td>
+                        </tr>
+                    `;
+                });
+            }
+        });
+    }
+
+    window.atualizar = (id, status) => {
+        update(ref(db, 'agendamentos/' + id), { status: status });
+    };
+
+    window.deletar = (id) => {
+        if(confirm("Remover da fila?")) remove(ref(db, 'agendamentos/' + id));
+    };
+</script>
+</body>
+</html>
