@@ -3,161 +3,93 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Dr. Smile - Painel Administrativo</title>
+    <title>Painel de Controle Dr. Smile</title>
     <style>
-        /* DESIGN OVERRIDE: DARK PROFESSIONAL THEME */
         * { margin: 0; padding: 0; box-sizing: border-box; }
-        body { font-family: 'Inter', 'Segoe UI', sans-serif; background: #050505; color: #e0e0e0; min-height: 100vh; }
-
-        /* ===== TELA DE LOGIN (REFORMULADA) ===== */
-        #login-screen {
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            min-height: 100vh;
-            background: radial-gradient(circle at center, #111 0%, #000 100%);
-        }
-
-        .login-card {
-            background: #0f0f0f;
-            padding: 40px;
-            border-radius: 12px;
-            border: 1px solid #333;
-            width: 100%;
-            max-width: 380px;
-            text-align: center;
-            box-shadow: 0 0 30px rgba(0, 229, 255, 0.05);
-        }
-
-        .login-logo h1 {
-            color: #00e5ff;
-            font-size: 1.8rem;
-            text-transform: uppercase;
-            letter-spacing: 4px;
-            margin-bottom: 10px;
-        }
-
-        .login-logo p { color: #666; font-size: 0.8rem; margin-bottom: 30px; letter-spacing: 1px; }
-
-        .form-group { text-align: left; margin-bottom: 20px; }
-        .form-group label { display: block; color: #888; font-size: 0.75rem; text-transform: uppercase; margin-bottom: 8px; }
-        .form-group input {
-            width: 100%;
-            padding: 12px;
-            background: #1a1a1a;
-            border: 1px solid #333;
-            color: #fff;
-            border-radius: 6px;
-            font-size: 1rem;
-            outline: none;
-            transition: 0.3s;
-        }
-        .form-group input:focus { border-color: #00e5ff; box-shadow: 0 0 10px rgba(0, 229, 255, 0.2); }
-
-        .btn-login {
-            width: 100%;
-            padding: 12px;
-            background: #00e5ff;
-            color: #000;
-            border: none;
-            border-radius: 6px;
-            font-weight: 700;
-            cursor: pointer;
-            transition: 0.3s;
-        }
-        .btn-login:hover { background: #00b8cc; }
-
-        /* ===== PAINEL ADMINISTRATIVO ===== */
-        #admin-panel { display: none; background: #0a0a0a; min-height: 100vh; }
-        .admin-header { background: #000; padding: 15px 30px; border-bottom: 1px solid #222; display: flex; justify-content: space-between; align-items: center; }
-        .admin-header h1 { font-size: 1.2rem; color: #00e5ff; letter-spacing: 1px; }
-        .btn-logout { background: transparent; color: #ff4444; border: 1px solid #ff4444; padding: 5px 15px; border-radius: 4px; cursor: pointer; }
-
-        .stats-container { display: grid; grid-template-columns: repeat(auto-fit, minmax(250px, 1fr)); gap: 20px; padding: 30px; }
-        .stat-card { background: #111; padding: 20px; border-radius: 8px; border: 1px solid #222; }
-        .stat-info h3 { color: #666; font-size: 0.7rem; text-transform: uppercase; }
-        .stat-info p { font-size: 1.8rem; font-weight: 700; color: #fff; }
-
-        .queue-container { padding: 0 30px; }
-        #tabela-fila { background: #111; border-radius: 8px; border: 1px solid #222; overflow: hidden; }
-        .queue-table-header { background: #1a1a1a; padding: 15px; display: grid; grid-template-columns: 100px 1fr 1fr 150px 250px; color: #888; font-size: 0.8rem; text-transform: uppercase; }
-        .queue-item { padding: 15px; display: grid; grid-template-columns: 100px 1fr 1fr 150px 250px; align-items: center; border-bottom: 1px solid #1a1a1a; }
+        body { font-family: 'Inter', sans-serif; background: #050505; color: #fff; display: flex; height: 100vh; overflow: hidden; }
         
-        .status-badge { padding: 4px 10px; border-radius: 4px; font-size: 0.7rem; font-weight: 700; }
-        .status-pending { background: #333; color: #aaa; }
-        .status-attending { background: rgba(0, 229, 255, 0.1); color: #00e5ff; border: 1px solid #00e5ff; }
+        /* SIDEBAR NAV */
+        nav { width: 80px; background: #000; border-right: 1px solid #222; display: flex; flex-direction: column; align-items: center; padding: 20px 0; }
+        nav button { background: none; border: none; color: #666; font-size: 1.5rem; margin-bottom: 30px; cursor: pointer; transition: 0.3s; }
+        nav button.active { color: #00e5ff; }
 
-        .btn-action { padding: 6px 12px; border: none; border-radius: 4px; cursor: pointer; font-weight: 600; margin-right: 5px; font-size: 0.75rem; }
-        .btn-start { background: #22c55e; color: #fff; }
-        .btn-finish { background: #00e5ff; color: #000; }
-        .btn-remove { background: transparent; color: #ff4444; border: 1px solid #ff4444; }
-        .btn-action:disabled { opacity: 0.2; cursor: not-allowed; }
+        /* CONTENT AREAS */
+        main { flex: 1; padding: 30px; overflow-y: auto; }
+        .hidden { display: none !important; }
 
-        /* FLOATING ADD BUTTON */
-        .btn-add-patient { position: fixed; bottom: 30px; right: 30px; width: 50px; height: 50px; background: #00e5ff; border: none; border-radius: 50%; font-size: 1.5rem; cursor: pointer; color: #000; }
+        /* LOGIN SCREEN */
+        #login-screen { position: fixed; inset: 0; background: #000; z-index: 9999; display: flex; align-items: center; justify-content: center; }
+        .login-card { background: #111; padding: 40px; border-radius: 12px; border: 1px solid #333; text-align: center; }
+
+        /* EDITOR STYLES */
+        .editor-container { display: grid; grid-template-columns: 1fr 400px; gap: 30px; }
+        .form-edit { background: #111; padding: 20px; border-radius: 10px; }
+        input, textarea { width: 100%; padding: 10px; margin-bottom: 10px; background: #222; border: 1px solid #444; color: #fff; border-radius: 5px; }
+        .btn-save { background: #00e5ff; color: #000; padding: 10px 20px; border: none; border-radius: 5px; font-weight: 700; cursor: pointer; width: 100%; }
         
-        /* MODAL */
-        .modal { display: none; position: fixed; top:0; left:0; width:100%; height:100%; background: rgba(0,0,0,0.8); align-items: center; justify-content: center; z-index: 1000; }
-        .modal.active { display: flex; }
-        .modal-content { background: #111; padding: 30px; border-radius: 8px; width: 400px; border: 1px solid #333; }
-        .hidden { display: none; }
+        /* PREVIEW WINDOW */
+        .preview-window { border: 10px solid #222; border-radius: 20px; height: 600px; overflow: hidden; background: #fff; position: sticky; top: 0; }
+        iframe { width: 100%; height: 100%; border: none; }
+
+        /* QUEUE TABLE */
+        table { width: 100%; border-collapse: collapse; background: #111; border-radius: 10px; overflow: hidden; }
+        th { background: #1a1a1a; padding: 15px; text-align: left; color: #666; font-size: 0.8rem; }
+        td { padding: 15px; border-bottom: 1px solid #222; }
+        .status-pill { padding: 4px 8px; border-radius: 4px; font-size: 0.7rem; font-weight: 700; }
     </style>
 </head>
 <body>
 
     <div id="login-screen">
         <div class="login-card">
-            <div class="login-logo">
-                <h1>DR. SMILE</h1>
-                <p>CENTRAL DE CONTROLE</p>
+            <h1 style="color:#00e5ff; letter-spacing:5px; margin-bottom:20px;">ADMIN</h1>
+            <input type="password" id="pass" placeholder="CHAVE">
+            <button class="btn-save" onclick="login()">ENTRAR</button>
+        </div>
+    </div>
+
+    <nav>
+        <button id="btn-nav-fila" class="active" onclick="showTab('fila')">📋</button>
+        <button id="btn-nav-edit" onclick="showTab('edit')">🎨</button>
+        <button onclick="location.reload()">🚪</button>
+    </nav>
+
+    <main id="tab-fila">
+        <h1 style="margin-bottom:20px">Fila de Atendimento</h1>
+        <table>
+            <thead><tr><th>Paciente</th><th>Motivo</th><th>Status</th><th>Ações</th></tr></thead>
+            <tbody id="lista-fila"></tbody>
+        </table>
+    </main>
+
+    <main id="tab-edit" class="hidden">
+        <div class="editor-container">
+            <div class="form-edit">
+                <h1>🎨 Design do Site</h1>
+                <label>Título Principal</label>
+                <input type="text" id="conf-titulo" oninput="saveConfig()">
+                <label>Subtítulo</label>
+                <textarea id="conf-subtitulo" oninput="saveConfig()"></textarea>
+                
+                <hr style="margin:20px 0; border:#333">
+                
+                <h3>Serviços (JSON)</h3>
+                <p style="font-size: 0.7rem; color: #888; margin-bottom: 10px;">Edite o nome e preço abaixo:</p>
+                <textarea id="conf-servicos" style="height: 300px; font-family: monospace;" oninput="saveConfig()"></textarea>
             </div>
-            <form id="login-form">
-                <div class="form-group">
-                    <label>Chave de Acesso</label>
-                    <input type="password" id="login-password" placeholder="••••••••" required>
+            
+            <div>
+                <h3>Visualização Real</h3>
+                <div class="preview-window">
+                    <iframe src="https://l3supermax12.github.io/Cliente-servidor/" id="preview-frame"></iframe>
                 </div>
-                <button type="submit" class="btn-login">AUTENTICAR</button>
-            </form>
-        </div>
-    </div>
-
-    <div id="admin-panel">
-        <div class="admin-header">
-            <h1>DR. SMILE | ADMIN</h1>
-            <button class="btn-logout" onclick="location.reload()">SAIR</button>
-        </div>
-
-        <div class="stats-container">
-            <div class="stat-card"><div class="stat-info"><h3>Atendidos Hoje</h3><p id="stats-atendidos">0</p></div></div>
-            <div class="stat-card"><div class="stat-info"><h3>Na Fila</h3><p id="stats-fila">0</p></div></div>
-            <div class="stat-card"><div class="stat-info"><h3>Ticket Médio</h3><p>R$ 450</p></div></div>
-        </div>
-
-        <div class="queue-container">
-            <div id="tabela-fila">
-                <div class="queue-table-header">
-                    <div>Entrada</div><div>Paciente</div><div>Motivo</div><div>Status</div><div>Ações</div>
-                </div>
-                <div id="queue-list"></div>
             </div>
         </div>
-
-        <button class="btn-add-patient" onclick="openModal()">+</button>
-    </div>
-
-    <div class="modal" id="modal-patient">
-        <div class="modal-content">
-            <h2 style="margin-bottom: 20px;">Novo Paciente Presencial</h2>
-            <div class="form-group"><input type="text" id="p-name" placeholder="Nome do Paciente"></div>
-            <div class="form-group"><input type="text" id="p-reason" placeholder="Motivo"></div>
-            <button class="btn-login" onclick="addManual()">ADICIONAR À FILA</button>
-            <button class="btn-logout" style="width: 100%; margin-top: 10px;" onclick="closeModal()">CANCELAR</button>
-        </div>
-    </div>
+    </main>
 
     <script type="module">
         import { initializeApp } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-app.js";
-        import { getDatabase, ref, onValue, update, remove, push } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-database.js";
+        import { getDatabase, ref, onValue, update, remove } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-database.js";
 
         const firebaseConfig = {
             apiKey: "AIzaSyDAAl2ziqrALH6R1lzgzTX3kDJ6TdVcVIM",
@@ -170,74 +102,78 @@
 
         const app = initializeApp(firebaseConfig);
         const db = getDatabase(app);
-        const filaRef = ref(db, 'agendamentos');
 
-        // AUTENTICAÇÃO
-        document.getElementById('login-form').addEventListener('submit', (e) => {
-            e.preventDefault();
-            if(document.getElementById('login-password').value === "1704") {
-                document.getElementById('login-screen').style.display = 'none';
-                document.getElementById('admin-panel').style.display = 'block';
-                startSync();
-            } else { alert("Chave inválida."); }
-        });
-
-        function startSync() {
-            onValue(filaRef, (snapshot) => {
-                const data = snapshot.val();
-                const list = document.getElementById('queue-list');
-                list.innerHTML = "";
-                
-                let atendidosCount = 0;
-                let filaCount = 0;
-                let ocupado = false;
-
-                if(data) {
-                    const sorted = Object.entries(data).map(([id, val]) => ({id, ...val}));
-                    
-                    // Verifica se alguém já está em atendimento
-                    ocupado = sorted.some(p => p.status === "Em Atendimento");
-
-                    sorted.forEach(p => {
-                        if(p.status === "Concluído") { atendidosCount++; return; }
-                        filaCount++;
-
-                        const item = document.createElement('div');
-                        item.className = 'queue-item';
-                        item.innerHTML = `
-                            <div class="queue-time">${p.horario || '--'}</div>
-                            <div style="font-weight:700">${p.nome}</div>
-                            <div style="color:#666">${p.motivo}</div>
-                            <div><span class="status-badge ${p.status === 'Em Atendimento' ? 'status-attending' : 'status-pending'}">${p.status}</span></div>
-                            <div class="queue-actions">
-                                ${p.status === 'Pendente' ? 
-                                    `<button class="btn-action btn-start" ${ocupado ? 'disabled' : ''} onclick="window.updateStatus('${p.id}', 'Em Atendimento')">Iniciar</button>` : 
-                                    `<button class="btn-action btn-finish" onclick="window.updateStatus('${p.id}', 'Concluído')">Finalizar</button>`}
-                                <button class="btn-action btn-remove" onclick="window.removeP('${p.id}')">X</button>
-                            </div>
-                        `;
-                        list.appendChild(item);
-                    });
-                }
-                document.getElementById('stats-atendidos').innerText = atendidosCount;
-                document.getElementById('stats-fila').innerText = filaCount;
-            });
-        }
-
-        window.updateStatus = (id, status) => update(ref(db, `agendamentos/${id}`), { status });
-        window.removeP = (id) => confirm("Remover?") && remove(ref(db, `agendamentos/${id}`));
-        
-        window.addManual = () => {
-            const nome = document.getElementById('p-name').value;
-            const motivo = document.getElementById('p-reason').value;
-            if(nome) {
-                push(filaRef, { nome, motivo, status: "Pendente", horario: new Date().toLocaleTimeString(), timestamp: Date.now() });
-                closeModal();
+        // LOGIN
+        window.login = () => {
+            if(document.getElementById('pass').value === "1704") {
+                document.getElementById('login-screen').classList.add('hidden');
+                loadData();
             }
         };
 
-        window.openModal = () => document.getElementById('modal-patient').classList.add('active');
-        window.closeModal = () => document.getElementById('modal-patient').classList.remove('active');
+        // NAVEGAÇÃO
+        window.showTab = (tab) => {
+            document.getElementById('tab-fila').classList.add('hidden');
+            document.getElementById('tab-edit').classList.add('hidden');
+            document.getElementById(`tab-${tab}`).classList.remove('hidden');
+            document.querySelectorAll('nav button').forEach(b => b.classList.remove('active'));
+            document.getElementById(`btn-nav-${tab}`).classList.add('active');
+            
+            // Recarrega o preview ao abrir a aba
+            if(tab === 'edit') document.getElementById('preview-frame').src += '';
+        };
+
+        function loadData() {
+            // Sincroniza Fila
+            onValue(ref(db, 'agendamentos'), (snapshot) => {
+                const list = document.getElementById('lista-fila');
+                list.innerHTML = "";
+                const data = snapshot.val();
+                if(data) {
+                    Object.entries(data).forEach(([id, p]) => {
+                        if(p.status === "Concluído") return;
+                        list.innerHTML += `
+                            <tr>
+                                <td>${p.nome}</td>
+                                <td>${p.motivo}</td>
+                                <td><span class="status-pill" style="background:${p.status==='Pendente'?'#333':'#00e5ff'}; color:${p.status==='Pendente'?'#aaa':'#000'}">${p.status}</span></td>
+                                <td>
+                                    <button onclick="window.att('${id}', '${p.status==='Pendente'?'Em Atendimento':'Concluído'}')">✅</button>
+                                    <button onclick="window.del('${id}')">❌</button>
+                                </td>
+                            </tr>
+                        `;
+                    });
+                }
+            });
+
+            // Carrega Configurações no Editor
+            onValue(ref(db, 'configuracoes'), (snapshot) => {
+                const c = snapshot.val();
+                if(c) {
+                    document.getElementById('conf-titulo').value = c.titulo;
+                    document.getElementById('conf-subtitulo').value = c.subtitulo;
+                    document.getElementById('conf-servicos').value = JSON.stringify(c.servicos, null, 2);
+                }
+            });
+        }
+
+        window.att = (id, status) => update(ref(db, `agendamentos/${id}`), { status });
+        window.del = (id) => remove(ref(db, `agendamentos/${id}`));
+
+        // SALVAR CONFIGURAÇÕES AO DIGITAR
+        window.saveConfig = () => {
+            try {
+                const servicos = JSON.parse(document.getElementById('conf-servicos').value);
+                update(ref(db, 'configuracoes'), {
+                    titulo: document.getElementById('conf-titulo').value,
+                    subtitulo: document.getElementById('conf-subtitulo').value,
+                    servicos: servicos
+                });
+            } catch(e) { 
+                // Evita erro enquanto o usuário digita o JSON
+            }
+        };
     </script>
 </body>
 </html>
