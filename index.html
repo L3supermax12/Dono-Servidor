@@ -3,94 +3,102 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Painel de Controle Dr. Smile</title>
+    <title>Dr. Smile | Designer Pro</title>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/Sortable/1.14.0/Sortable.min.js"></script>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/animate.css/4.1.1/animate.min.css"/>
+    
     <style>
+        :root { --accent: #00e5ff; }
         * { margin: 0; padding: 0; box-sizing: border-box; }
-        body { font-family: 'Inter', sans-serif; background: #050505; color: #fff; display: flex; height: 100vh; overflow: hidden; }
+        body { font-family: 'Inter', sans-serif; background: #000; color: #fff; display: flex; }
+
+        /* BARRA LATERAL DE FERRAMENTAS */
+        .toolbar { width: 300px; height: 100vh; background: #111; border-right: 1px solid #333; padding: 20px; overflow-y: auto; z-index: 100; }
+        .toolbar h2 { font-size: 1rem; color: var(--accent); margin-bottom: 20px; letter-spacing: 2px; }
         
-        /* SIDEBAR NAV */
-        nav { width: 80px; background: #000; border-right: 1px solid #222; display: flex; flex-direction: column; align-items: center; padding: 20px 0; }
-        nav button { background: none; border: none; color: #666; font-size: 1.5rem; margin-bottom: 30px; cursor: pointer; transition: 0.3s; }
-        nav button.active { color: #00e5ff; }
-
-        /* CONTENT AREAS */
-        main { flex: 1; padding: 30px; overflow-y: auto; }
-        .hidden { display: none !important; }
-
-        /* LOGIN SCREEN */
-        #login-screen { position: fixed; inset: 0; background: #000; z-index: 9999; display: flex; align-items: center; justify-content: center; }
-        .login-card { background: #111; padding: 40px; border-radius: 12px; border: 1px solid #333; text-align: center; }
-
-        /* EDITOR STYLES */
-        .editor-container { display: grid; grid-template-columns: 1fr 400px; gap: 30px; }
-        .form-edit { background: #111; padding: 20px; border-radius: 10px; }
-        input, textarea { width: 100%; padding: 10px; margin-bottom: 10px; background: #222; border: 1px solid #444; color: #fff; border-radius: 5px; }
-        .btn-save { background: #00e5ff; color: #000; padding: 10px 20px; border: none; border-radius: 5px; font-weight: 700; cursor: pointer; width: 100%; }
+        .tool-group { margin-bottom: 25px; background: #1a1a1a; padding: 15px; border-radius: 8px; }
+        .tool-group label { display: block; font-size: 0.7rem; color: #888; margin-bottom: 10px; text-transform: uppercase; }
         
-        /* PREVIEW WINDOW */
-        .preview-window { border: 10px solid #222; border-radius: 20px; height: 600px; overflow: hidden; background: #fff; position: sticky; top: 0; }
-        iframe { width: 100%; height: 100%; border: none; }
+        input[type="color"], input[type="text"], select { width: 100%; padding: 8px; background: #222; border: 1px solid #444; color: #fff; border-radius: 4px; margin-bottom: 10px; }
 
-        /* QUEUE TABLE */
-        table { width: 100%; border-collapse: collapse; background: #111; border-radius: 10px; overflow: hidden; }
-        th { background: #1a1a1a; padding: 15px; text-align: left; color: #666; font-size: 0.8rem; }
-        td { padding: 15px; border-bottom: 1px solid #222; }
-        .status-pill { padding: 4px 8px; border-radius: 4px; font-size: 0.7rem; font-weight: 700; }
+        /* ÁREA DE TRABALHO (PREVIEW VIVO) */
+        .workspace { flex: 1; height: 100vh; overflow-y: auto; background: #050505; padding: 40px; position: relative; }
+        
+        /* ELEMENTOS EDITÁVEIS (Simulando o Site) */
+        .editable-canvas { 
+            background: #0a0a0a; 
+            min-height: 100%; 
+            border-radius: 20px; 
+            padding: 40px; 
+            border: 2px dashed #333;
+        }
+
+        .edit-hero { text-align: center; margin-bottom: 50px; cursor: pointer; padding: 20px; border-radius: 10px; transition: 0.2s; }
+        .edit-hero:hover { background: rgba(0,229,255,0.05); outline: 1px solid var(--accent); }
+
+        /* GRID DE SERVIÇOS ARRASTÁVEL */
+        .edit-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 15px; }
+        .edit-card { 
+            background: #111; border: 1px solid #222; padding: 20px; border-radius: 12px; 
+            cursor: grab; position: relative; transition: 0.3s;
+        }
+        .edit-card:active { cursor: grabbing; }
+        .edit-card:hover { border-color: var(--accent); }
+        
+        .btn-add { background: var(--accent); color: #000; border: none; padding: 10px; border-radius: 50%; width: 40px; height: 40px; font-weight: bold; cursor: pointer; margin-top: 20px; }
+        
+        .save-bar { position: fixed; bottom: 20px; left: 320px; right: 20px; background: #00e5ff; color: #000; padding: 15px; border-radius: 10px; display: flex; justify-content: space-between; align-items: center; font-weight: bold; box-shadow: 0 10px 30px rgba(0,229,255,0.3); z-index: 1000; }
+        .btn-publish { background: #000; color: #fff; border: none; padding: 8px 20px; border-radius: 5px; cursor: pointer; }
     </style>
 </head>
 <body>
 
-    <div id="login-screen">
-        <div class="login-card">
-            <h1 style="color:#00e5ff; letter-spacing:5px; margin-bottom:20px;">ADMIN</h1>
-            <input type="password" id="pass" placeholder="CHAVE">
-            <button class="btn-save" onclick="login()">ENTRAR</button>
+    <div class="toolbar">
+        <h2>DESIGNER PRO</h2>
+        
+        <div class="tool-group">
+            <label>Cores da Marca</label>
+            <input type="color" id="theme-color" value="#00e5ff" onchange="updateTheme()">
+            <label>Fundo do Site</label>
+            <input type="color" id="bg-color" value="#0a0a0a" onchange="updateTheme()">
+        </div>
+
+        <div class="tool-group">
+            <label>Animação de Entrada</label>
+            <select id="anim-type">
+                <option value="animate__fadeIn">Suave</option>
+                <option value="animate__bounceIn">Salto</option>
+                <option value="animate__slideInUp">Subir</option>
+            </select>
+        </div>
+
+        <p style="font-size: 0.7rem; color: #555;">DICA: Arraste os cards de serviço para mudar a ordem no site do cliente.</p>
+    </div>
+
+    <div class="workspace">
+        <div class="editable-canvas" id="canvas">
+            <div class="edit-hero animate__animated" id="hero-area" onclick="editText('hero')">
+                <h1 id="view-titulo">Dr. Smile</h1>
+                <p id="view-subtitulo">Clique aqui para editar este texto</p>
+            </div>
+
+            <div class="edit-grid" id="services-sortable">
+                </div>
+            
+            <button class="btn-add" onclick="addNewService()">+</button>
         </div>
     </div>
 
-    <nav>
-        <button id="btn-nav-fila" class="active" onclick="showTab('fila')">📋</button>
-        <button id="btn-nav-edit" onclick="showTab('edit')">🎨</button>
-        <button onclick="location.reload()">🚪</button>
-    </nav>
-
-    <main id="tab-fila">
-        <h1 style="margin-bottom:20px">Fila de Atendimento</h1>
-        <table>
-            <thead><tr><th>Paciente</th><th>Motivo</th><th>Status</th><th>Ações</th></tr></thead>
-            <tbody id="lista-fila"></tbody>
-        </table>
-    </main>
-
-    <main id="tab-edit" class="hidden">
-        <div class="editor-container">
-            <div class="form-edit">
-                <h1>🎨 Design do Site</h1>
-                <label>Título Principal</label>
-                <input type="text" id="conf-titulo" oninput="saveConfig()">
-                <label>Subtítulo</label>
-                <textarea id="conf-subtitulo" oninput="saveConfig()"></textarea>
-                
-                <hr style="margin:20px 0; border:#333">
-                
-                <h3>Serviços (JSON)</h3>
-                <p style="font-size: 0.7rem; color: #888; margin-bottom: 10px;">Edite o nome e preço abaixo:</p>
-                <textarea id="conf-servicos" style="height: 300px; font-family: monospace;" oninput="saveConfig()"></textarea>
-            </div>
-            
-            <div>
-                <h3>Visualização Real</h3>
-                <div class="preview-window">
-                    <iframe src="https://l3supermax12.github.io/Cliente-servidor/" id="preview-frame"></iframe>
-                </div>
-            </div>
-        </div>
-    </main>
+    <div class="save-bar">
+        <span>Você tem alterações não publicadas!</span>
+        <button class="btn-publish" onclick="publishSite()">PUBLICAR SITE</button>
+    </div>
 
     <script type="module">
         import { initializeApp } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-app.js";
-        import { getDatabase, ref, onValue, update, remove } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-database.js";
+        import { getDatabase, ref, onValue, set } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-database.js";
 
+        // CONFIGURAÇÃO FIREBASE (IGUAL À ANTERIOR)
         const firebaseConfig = {
             apiKey: "AIzaSyDAAl2ziqrALH6R1lzgzTX3kDJ6TdVcVIM",
             authDomain: "clinica-cliente.firebaseapp.com",
@@ -99,81 +107,93 @@
             messagingSenderId: "151834590720",
             appId: "1:151834590720:web:40dc91b2b88dc65d9922e5"
         };
-
         const app = initializeApp(firebaseConfig);
         const db = getDatabase(app);
 
-        // LOGIN
-        window.login = () => {
-            if(document.getElementById('pass').value === "1704") {
-                document.getElementById('login-screen').classList.add('hidden');
-                loadData();
+        let siteData = {
+            configuracoes: {
+                titulo: "Dr. Smile",
+                subtitulo: "Clínica Premium",
+                tema: "#00e5ff",
+                animacao: "animate__fadeIn",
+                servicos: []
             }
         };
 
-        // NAVEGAÇÃO
-        window.showTab = (tab) => {
-            document.getElementById('tab-fila').classList.add('hidden');
-            document.getElementById('tab-edit').classList.add('hidden');
-            document.getElementById(`tab-${tab}`).classList.remove('hidden');
-            document.querySelectorAll('nav button').forEach(b => b.classList.remove('active'));
-            document.getElementById(`btn-nav-${tab}`).classList.add('active');
-            
-            // Recarrega o preview ao abrir a aba
-            if(tab === 'edit') document.getElementById('preview-frame').src += '';
-        };
+        // CARREGAR DADOS
+        onValue(ref(db, 'configuracoes'), (snapshot) => {
+            const data = snapshot.val();
+            if(data) {
+                siteData.configuracoes = data;
+                renderCanvas();
+            }
+        });
 
-        function loadData() {
-            // Sincroniza Fila
-            onValue(ref(db, 'agendamentos'), (snapshot) => {
-                const list = document.getElementById('lista-fila');
-                list.innerHTML = "";
-                const data = snapshot.val();
-                if(data) {
-                    Object.entries(data).forEach(([id, p]) => {
-                        if(p.status === "Concluído") return;
-                        list.innerHTML += `
-                            <tr>
-                                <td>${p.nome}</td>
-                                <td>${p.motivo}</td>
-                                <td><span class="status-pill" style="background:${p.status==='Pendente'?'#333':'#00e5ff'}; color:${p.status==='Pendente'?'#aaa':'#000'}">${p.status}</span></td>
-                                <td>
-                                    <button onclick="window.att('${id}', '${p.status==='Pendente'?'Em Atendimento':'Concluído'}')">✅</button>
-                                    <button onclick="window.del('${id}')">❌</button>
-                                </td>
-                            </tr>
-                        `;
-                    });
-                }
+        function renderCanvas() {
+            document.getElementById('view-titulo').innerText = siteData.configuracoes.titulo;
+            document.getElementById('view-subtitulo').innerText = siteData.configuracoes.subtitulo;
+            
+            const grid = document.getElementById('services-sortable');
+            grid.innerHTML = "";
+            
+            const servicos = siteData.configuracoes.servicos || [];
+            servicos.forEach((s, index) => {
+                grid.innerHTML += `
+                    <div class="edit-card animate__animated ${siteData.configuracoes.animacao}" data-id="${index}">
+                        <div onclick="editService(${index})">
+                            <div style="font-size:2rem">${s.emoji}</div>
+                            <div style="font-weight:bold">${s.nome}</div>
+                            <div style="color:var(--accent)">R$ ${s.preco}</div>
+                        </div>
+                        <button onclick="removeService(${index})" style="position:absolute; top:5px; right:5px; background:none; border:none; color:red; cursor:pointer;">×</button>
+                    </div>
+                `;
             });
 
-            // Carrega Configurações no Editor
-            onValue(ref(db, 'configuracoes'), (snapshot) => {
-                const c = snapshot.val();
-                if(c) {
-                    document.getElementById('conf-titulo').value = c.titulo;
-                    document.getElementById('conf-subtitulo').value = c.subtitulo;
-                    document.getElementById('conf-servicos').value = JSON.stringify(c.servicos, null, 2);
+            // ATIVAR ARRASTAR E SOLTAR
+            new Sortable(grid, {
+                animation: 150,
+                onEnd: function() {
+                    const newOrder = [];
+                    document.querySelectorAll('.edit-card').forEach(el => {
+                        newOrder.push(servicos[el.dataset.id]);
+                    });
+                    siteData.configuracoes.servicos = newOrder;
                 }
             });
         }
 
-        window.att = (id, status) => update(ref(db, `agendamentos/${id}`), { status });
-        window.del = (id) => remove(ref(db, `agendamentos/${id}`));
+        // FUNÇÕES DE EDIÇÃO
+        window.editText = (type) => {
+            if(type === 'hero') {
+                const n = prompt("Novo Título:", siteData.configuracoes.titulo);
+                const s = prompt("Novo Subtítulo:", siteData.configuracoes.subtitulo);
+                if(n) siteData.configuracoes.titulo = n;
+                if(s) siteData.configuracoes.subtitulo = s;
+            }
+            renderCanvas();
+        };
 
-        // SALVAR CONFIGURAÇÕES AO DIGITAR
-        window.saveConfig = () => {
-            try {
-                const servicos = JSON.parse(document.getElementById('conf-servicos').value);
-                update(ref(db, 'configuracoes'), {
-                    titulo: document.getElementById('conf-titulo').value,
-                    subtitulo: document.getElementById('conf-subtitulo').value,
-                    servicos: servicos
-                });
-            } catch(e) { 
-                // Evita erro enquanto o usuário digita o JSON
+        window.addNewService = () => {
+            const nome = prompt("Nome do Serviço:");
+            if(nome) {
+                if(!siteData.configuracoes.servicos) siteData.configuracoes.servicos = [];
+                siteData.configuracoes.servicos.push({ nome, preco: "0", desc: "", emoji: "🦷" });
+                renderCanvas();
             }
         };
+
+        window.publishSite = () => {
+            set(ref(db, 'configuracoes'), siteData.configuracoes)
+                .then(() => alert("Site Atualizado com Sucesso!"));
+        };
+
+        window.updateTheme = () => {
+            const color = document.getElementById('theme-color').value;
+            document.documentElement.style.setProperty('--accent', color);
+            siteData.configuracoes.tema = color;
+        };
+
     </script>
 </body>
 </html>
